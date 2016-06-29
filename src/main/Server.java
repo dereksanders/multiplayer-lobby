@@ -88,9 +88,9 @@ public class Server implements Serializable {
 				ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 				ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
 
-				String name = (String) objectInputStream.readObject();
+				Client joined = (Client) objectInputStream.readObject();
 
-				System.out.println(name + " is now connected.");
+				System.out.println(joined.name + " is now connected.");
 
 				objectOutputStream.writeObject("You joined the server.");
 

@@ -5,13 +5,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+import master.MasterServer;
 
 /**
  * The Class Client.
  */
-public class Client {
+public class Client implements Serializable {
+
+	private static final long serialVersionUID = -6235265951918859905L;
+	public String name = "Default User";
 
 	/**
 	 * The main method.
@@ -25,29 +31,41 @@ public class Client {
 	 * @throws ClassNotFoundException
 	 *             the class not found exception
 	 */
-	public static void main(String[] args) throws UnknownHostException, IOException, ClassNotFoundException {
+	public static void main(String[] args) {
+
+		Client c = new Client();
 
 		if (args.length > 0) {
 
-			String name = args[0];
-			Socket socket = new Socket(Server.HOST, Server.PORT);
-			ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-			ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+			c.name = args[0];
+		}
 
-			objectOutputStream.writeObject(name);
+		try {
 
-			BufferedReader inputReader = new BufferedReader(new InputStreamReader(System.in));
+			c.joinServer();
 
-			System.out.println(objectInputStream.readObject());
+		} catch (ClassNotFoundException | IOException e) {
 
-			while (true) {
+			System.out.println("Failed to join server.");
+			e.printStackTrace();
+		}
+	}
 
-				objectOutputStream.writeObject(name + ": " + inputReader.readLine());
-			}
+	public void joinServer() throws UnknownHostException, IOException, ClassNotFoundException {
 
-		} else {
+		Socket socket = new Socket(Server.HOST, Server.PORT);
+		ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+		ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 
-			System.out.println("Usage: Client <name>");
+		objectOutputStream.writeObject(this);
+
+		BufferedReader inputReader = new BufferedReader(new InputStreamReader(System.in));
+
+		System.out.println(objectInputStream.readObject());
+
+		while (true) {
+
+			objectOutputStream.writeObject(name + ": " + inputReader.readLine());
 		}
 	}
 }
